@@ -99,6 +99,7 @@ const TextCursor: React.FC<TextCursorProps> = ({
     if (!container) return;
     container.addEventListener("mousemove", handleMouseMove);
     return () => container.removeEventListener("mousemove", handleMouseMove);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
