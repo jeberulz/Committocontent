@@ -5,13 +5,14 @@ import { useQuery } from "convex/react"
 import { api } from "@/convex/_generated/api"
 import { RepositoryCard } from "@/components/repository-card"
 import { ConnectGitHubModal } from "@/components/connect-github-modal"
-import { Github, Plus, Loader2, AlertCircle } from "lucide-react"
+import { Github, Plus, Loader2, AlertCircle, RefreshCw } from "lucide-react"
 import { useSearchParams, useRouter } from "next/navigation"
 import { toast } from "sonner"
 
 export default function RepositoriesPage() {
   const router = useRouter()
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isSyncing, setIsSyncing] = useState(false)
   const currentUser = useQuery(api.users.current)
   const repositories = useQuery(api.repositories.list)
   const repoCount = useQuery(api.repositories.getCount)
@@ -20,11 +21,26 @@ export default function RepositoriesPage() {
 
   // Redirect to setup if user doesn't exist in Convex
   useEffect(() => {
-    if (currentUser === null) {
-      router.push("/dashboard/test-convex")
-      toast.error("Please complete user setup first")
+    // Don't redirect if still loading
+    if (currentUser === undefined || repositories === undefined || repoCount === undefined || hasToken === undefined) {
+      return
     }
-  }, [currentUser, router])
+
+    // Don't redirect if user exists
+    if (currentUser !== null) {
+      return
+    }
+
+    // Don't redirect if we just came from OAuth (the user definitely exists, just loading)
+    if (searchParams?.get("connected") === "true") {
+      return
+    }
+
+    // At this point: all queries loaded, user is null, and we didn't just complete OAuth
+    // This means the user genuinely doesn't exist - redirect to setup
+    router.push("/dashboard/test-convex")
+    toast.error("Please complete user setup first")
+  }, [currentUser, repositories, repoCount, hasToken, searchParams, router])
 
   // Show success toast if just connected
   useEffect(() => {
@@ -58,6 +74,41 @@ export default function RepositoriesPage() {
     toast.info("Content generation coming soon!")
   }
 
+  const handleSyncAll = async () => {
+    if (isSyncing) return
+
+    setIsSyncing(true)
+    try {
+      const response = await fetch("/api/repositories/sync", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({}), // Empty body syncs all repositories
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to sync repositories")
+      }
+
+      if (data.totalNewCommits > 0) {
+        toast.success(`Synced! Found ${data.totalNewCommits} new commits`)
+      } else {
+        toast.success("All repositories are up to date")
+      }
+
+      // Refresh the page to show updated data
+      router.refresh()
+    } catch (error) {
+      console.error("Error syncing repositories:", error)
+      toast.error("Failed to sync repositories")
+    } finally {
+      setIsSyncing(false)
+    }
+  }
+
   return (
     <>
       {/* Header */}
@@ -82,16 +133,35 @@ export default function RepositoriesPage() {
           </p>
         </div>
 
-        <button
-          onClick={() => setIsModalOpen(true)}
-          className="flex items-center gap-2 rounded-lg bg-white text-black hover:bg-white/90 px-4 py-2.5 text-sm font-medium transition"
-          style={{
-            fontFamily: "Geist, var(--font-geist-sans), Inter, sans-serif",
-          }}
-        >
-          <Plus className="w-4 h-4" strokeWidth={1.5} />
-          Connect Repository
-        </button>
+        <div className="flex items-center gap-2">
+          {repositories && repositories.length > 0 && (
+            <button
+              onClick={handleSyncAll}
+              disabled={isSyncing}
+              className="flex items-center gap-2 rounded-lg bg-white/5 ring-1 ring-white/10 hover:bg-white/10 px-4 py-2.5 text-sm text-white/90 transition disabled:opacity-50"
+              style={{
+                fontFamily: "Geist, var(--font-geist-sans), Inter, sans-serif",
+              }}
+            >
+              {isSyncing ? (
+                <Loader2 className="w-4 h-4 animate-spin" strokeWidth={1.5} />
+              ) : (
+                <RefreshCw className="w-4 h-4" strokeWidth={1.5} />
+              )}
+              {isSyncing ? "Syncing..." : "Sync All"}
+            </button>
+          )}
+          <button
+            onClick={() => setIsModalOpen(true)}
+            className="flex items-center gap-2 rounded-lg bg-white text-black hover:bg-white/90 px-4 py-2.5 text-sm font-medium transition"
+            style={{
+              fontFamily: "Geist, var(--font-geist-sans), Inter, sans-serif",
+            }}
+          >
+            <Plus className="w-4 h-4" strokeWidth={1.5} />
+            Connect Repository
+          </button>
+        </div>
       </div>
 
       {/* Stats */}
@@ -208,14 +278,22 @@ export default function RepositoriesPage() {
                 : "Connect your GitHub account to import repositories and start turning your commits into publish-ready content."}
             </p>
             <button
-              onClick={() => setIsModalOpen(true)}
+              onClick={() => {
+                if (hasToken) {
+                  // If already has token, go directly to repository selection
+                  router.push("/dashboard/repositories/select")
+                } else {
+                  // Otherwise open the modal to start OAuth flow
+                  setIsModalOpen(true)
+                }
+              }}
               className="inline-flex items-center gap-2 rounded-lg bg-white text-black hover:bg-white/90 px-5 py-2.5 text-sm font-medium transition"
               style={{
                 fontFamily: "Geist, var(--font-geist-sans), Inter, sans-serif",
               }}
             >
               <Github className="w-4 h-4" strokeWidth={1.5} />
-              Connect GitHub
+              {hasToken ? "Select Repositories" : "Connect GitHub"}
             </button>
           </div>
         </div>

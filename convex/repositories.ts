@@ -78,9 +78,67 @@ export const getById = query({
 });
 
 /**
- * Connect new repositories (called from OAuth callback)
+ * Connect new repositories (internal - for use within Convex)
  */
-export const connect = internalMutation({
+export const connectInternal = internalMutation({
+  args: {
+    userId: v.id("users"),
+    repositories: v.array(
+      v.object({
+        githubRepoId: v.number(),
+        name: v.string(),
+        fullName: v.string(),
+        owner: v.string(),
+        url: v.string(),
+        defaultBranch: v.string(),
+        language: v.optional(v.string()),
+        isPrivate: v.boolean(),
+      })
+    ),
+  },
+  handler: async (ctx, { userId, repositories }) => {
+    const now = Date.now();
+
+    for (const repo of repositories) {
+      // Check if repository already exists
+      const existing = await ctx.db
+        .query("repositories")
+        .withIndex("byGithubRepoId", (q) => q.eq("githubRepoId", repo.githubRepoId))
+        .unique();
+
+      if (existing) {
+        // Reactivate if it was previously connected
+        await ctx.db.patch(existing._id, {
+          isActive: true,
+          lastSyncedAt: now,
+        });
+      } else {
+        // Create new repository record
+        await ctx.db.insert("repositories", {
+          userId,
+          githubRepoId: repo.githubRepoId,
+          name: repo.name,
+          fullName: repo.fullName,
+          owner: repo.owner,
+          url: repo.url,
+          defaultBranch: repo.defaultBranch,
+          language: repo.language,
+          isActive: true,
+          isPrivate: repo.isPrivate,
+          lastSyncedAt: now,
+          createdAt: now,
+        });
+      }
+    }
+
+    return { success: true, count: repositories.length };
+  },
+});
+
+/**
+ * Connect new repositories (public - can be called from API routes)
+ */
+export const connect = mutation({
   args: {
     userId: v.id("users"),
     repositories: v.array(
@@ -187,9 +245,26 @@ export const disconnect = mutation({
 });
 
 /**
- * Update repository's last synced timestamp
+ * Update repository's last synced timestamp (internal)
  */
-export const updateLastSynced = internalMutation({
+export const updateLastSyncedInternal = internalMutation({
+  args: {
+    repositoryId: v.id("repositories"),
+    timestamp: v.number(),
+  },
+  handler: async (ctx, { repositoryId, timestamp }) => {
+    await ctx.db.patch(repositoryId, {
+      lastSyncedAt: timestamp,
+    });
+
+    return { success: true };
+  },
+});
+
+/**
+ * Update repository's last synced timestamp (public - for API routes)
+ */
+export const updateLastSynced = mutation({
   args: {
     repositoryId: v.id("repositories"),
     timestamp: v.number(),
@@ -218,5 +293,58 @@ export const getCount = query({
       .collect();
 
     return repos.length;
+  },
+});
+
+/**
+ * Get all repositories for a specific user (for server-side API routes)
+ */
+export const listByUserId = query({
+  args: { userId: v.id("users") },
+  handler: async (ctx, { userId }) => {
+    const repos = await ctx.db
+      .query("repositories")
+      .withIndex("byUserId", (q) => q.eq("userId", userId))
+      .collect();
+
+    // Get commit counts for each repository
+    const reposWithStats = await Promise.all(
+      repos.map(async (repo) => {
+        const totalCommits = await ctx.db
+          .query("commits")
+          .withIndex("byRepositoryId", (q) => q.eq("repositoryId", repo._id))
+          .collect();
+
+        const unprocessedCommits = await ctx.db
+          .query("commits")
+          .withIndex("byProcessedStatus", (q) =>
+            q.eq("repositoryId", repo._id).eq("processed", false)
+          )
+          .collect();
+
+        return {
+          ...repo,
+          totalCommits: totalCommits.length,
+          newCommits: unprocessedCommits.length,
+        };
+      })
+    );
+
+    return reposWithStats;
+  },
+});
+
+/**
+ * Get active repositories for a specific user (for server-side API routes)
+ */
+export const listActiveByUserId = query({
+  args: { userId: v.id("users") },
+  handler: async (ctx, { userId }) => {
+    return await ctx.db
+      .query("repositories")
+      .withIndex("byUserAndActive", (q) =>
+        q.eq("userId", userId).eq("isActive", true)
+      )
+      .collect();
   },
 });

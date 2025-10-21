@@ -54,9 +54,75 @@ export const getBySha = query({
 });
 
 /**
- * Save commits (called from sync process)
+ * Save commits (internal - for use within Convex)
  */
-export const saveCommits = internalMutation({
+export const saveCommitsInternal = internalMutation({
+  args: {
+    repositoryId: v.id("repositories"),
+    commits: v.array(
+      v.object({
+        sha: v.string(),
+        message: v.string(),
+        authorName: v.string(),
+        authorEmail: v.string(),
+        committedAt: v.number(),
+        filesChanged: v.number(),
+        additions: v.number(),
+        deletions: v.number(),
+        url: v.string(),
+        branch: v.string(),
+      })
+    ),
+  },
+  handler: async (ctx, { repositoryId, commits }) => {
+    let addedCount = 0;
+    let skippedCount = 0;
+
+    for (const commit of commits) {
+      // Check if commit already exists
+      const existing = await ctx.db
+        .query("commits")
+        .withIndex("bySha", (q) => q.eq("sha", commit.sha))
+        .unique();
+
+      if (existing) {
+        skippedCount++;
+        continue;
+      }
+
+      // Insert new commit
+      await ctx.db.insert("commits", {
+        repositoryId,
+        sha: commit.sha,
+        message: commit.message,
+        authorName: commit.authorName,
+        authorEmail: commit.authorEmail,
+        committedAt: commit.committedAt,
+        filesChanged: commit.filesChanged,
+        additions: commit.additions,
+        deletions: commit.deletions,
+        url: commit.url,
+        branch: commit.branch,
+        processed: false,
+        createdAt: Date.now(),
+      });
+
+      addedCount++;
+    }
+
+    return {
+      success: true,
+      added: addedCount,
+      skipped: skippedCount,
+      total: commits.length,
+    };
+  },
+});
+
+/**
+ * Save commits (public - can be called from API routes)
+ */
+export const saveCommits = mutation({
   args: {
     repositoryId: v.id("repositories"),
     commits: v.array(
