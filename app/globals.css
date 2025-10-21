@@ -220,3 +220,12 @@
     offset-distance: 100%;
   }
 }
+
+@layer utilities {
+  .font-geist {
+    font-family: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
+  }
+  .font-inter {
+    font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  }
+}
