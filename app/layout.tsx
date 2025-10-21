@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Geist } from "next/font/google";
+import { Geist, Geist_Mono, Inter } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 
@@ -18,6 +18,12 @@ const geist = Geist({
   display: "swap",
 });
 
+const inter = Inter({
+  variable: "--font-inter",
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600"],
+});
+
 export const metadata: Metadata = {
   title: "CodeToContent — Turn GitHub commits into publish‑ready posts",
   description: "CodeToContent turns your GitHub commits into blog posts, tutorials, and social content. Ship code—we'll write the story. 14‑day free trial.",
@@ -31,8 +37,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${inter.variable} ${geist.variable} antialiased overscroll-none bg-black text-white`}
-        style={{ fontFamily: 'var(--font-inter), ui-sans-serif, system-ui' }}
+        className={`${geistSans.variable} ${geistMono.variable} ${inter.variable} antialiased overscroll-none`}
       >
         <ThemeProvider
           attribute="class"
