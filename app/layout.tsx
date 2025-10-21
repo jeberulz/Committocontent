@@ -6,22 +6,23 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { ClerkProvider } from '@clerk/nextjs'
 import ConvexClientProvider from '@/components/ConvexClientProvider'
 
-const inter = Inter({
+const geistSans = Geist({
   subsets: ["latin"],
-  variable: "--font-inter",
+  variable: "--font-geist-sans",
   display: "swap",
 });
 
-const geist = Geist({
+const geistMono = Geist_Mono({
   subsets: ["latin"],
-  variable: "--font-geist",
+  variable: "--font-geist-mono",
   display: "swap",
 });
 
 const inter = Inter({
-  variable: "--font-inter",
   subsets: ["latin"],
+  variable: "--font-inter",
   weight: ["300", "400", "500", "600"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
