@@ -20,6 +20,9 @@ import {
   IconUsers,
   IconSparkles,
   IconBrandOpenai,
+  IconCircleCheck,
+  IconEdit,
+  IconBrandGithub,
 } from "@tabler/icons-react"
 
 import { NavDocuments } from "@/app/dashboard/nav-documents"
@@ -45,6 +48,16 @@ const data = {
       title: "Dashboard",
       url: "/dashboard",
       icon: IconDashboard,
+    },
+    {
+      title: "Repositories",
+      url: "/dashboard/repositories",
+      icon: IconBrandGithub,
+    },
+    {
+      title: "Published",
+      url: "/dashboard/published",
+      icon: IconCircleCheck,
     },
     {
       title: "Payment gated",
