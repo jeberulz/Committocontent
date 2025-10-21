@@ -64,4 +64,42 @@ export default defineSchema({
       createdAt: v.number(),
     })
       .index("byUserId", ["userId"]),
+
+    // Content Templates
+    templates: defineTable({
+      userId: v.id("users"),
+      name: v.string(),
+      description: v.optional(v.string()),
+      category: v.string(), // "tutorial", "release-notes", "how-to", "deep-dive", "weekly-update", "custom"
+      structure: v.string(), // template content with {{placeholders}}
+      isDefault: v.boolean(), // system template vs user-created
+      isActive: v.boolean(),
+      usageCount: v.number(), // track how often used
+      createdAt: v.number(),
+      updatedAt: v.number(),
+    })
+      .index("byUserId", ["userId"])
+      .index("byUserAndCategory", ["userId", "category"])
+      .index("byUserAndActive", ["userId", "isActive"]),
+
+    // Tone of Voice Presets
+    toneOfVoice: defineTable({
+      userId: v.id("users"),
+      name: v.string(),
+      description: v.optional(v.string()),
+      settings: v.object({
+        formality: v.string(), // "casual", "professional", "formal"
+        technicalDepth: v.string(), // "beginner-friendly", "intermediate", "advanced"
+        personality: v.array(v.string()), // ["friendly", "concise", "detailed", "humorous"]
+        targetAudience: v.optional(v.string()),
+        examplePhrases: v.optional(v.array(v.string())),
+      }),
+      isDefault: v.boolean(),
+      isActive: v.boolean(),
+      usageCount: v.number(),
+      createdAt: v.number(),
+      updatedAt: v.number(),
+    })
+      .index("byUserId", ["userId"])
+      .index("byUserAndActive", ["userId", "isActive"]),
   });
