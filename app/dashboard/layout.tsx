@@ -1,38 +1,47 @@
-import { AppSidebar } from "@/app/dashboard/app-sidebar"
-import { SiteHeader } from "@/app/dashboard/site-header"
-import { LoadingBar } from "@/app/dashboard/loading-bar"
-import {
-  SidebarInset,
-  SidebarProvider,
-} from "@/components/ui/sidebar"
+"use client"
+
+import { DashboardSidebar } from "./components/dashboard-sidebar"
+import { DashboardHeader } from "./components/dashboard-header"
+import { useState } from "react"
 
 export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false)
+
   return (
-    <SidebarProvider
-      style={
-        {
-          "--sidebar-width": "calc(var(--spacing) * 72)",
-          "--header-height": "calc(var(--spacing) * 12)",
-        } as React.CSSProperties
-      }
-      className="group/layout"
-    >
-      <AppSidebar variant="inset" />
-      <SidebarInset>
-        <LoadingBar />
-        <SiteHeader />
-        <div className="flex flex-1 flex-col">
-          <div className="@container/main flex flex-1 flex-col gap-2">
-            <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
-              {children}
-            </div>
+    <div className="flex h-screen overflow-hidden bg-black text-white" style={{ fontFamily: 'var(--font-inter), ui-sans-serif, system-ui' }}>
+      {/* Desktop Sidebar */}
+      <DashboardSidebar className="hidden md:flex" />
+
+      {/* Mobile Sidebar Overlay */}
+      {isMobileSidebarOpen && (
+        <>
+          <div
+            className="fixed inset-0 bg-black/80 backdrop-blur-sm z-40 md:hidden"
+            onClick={() => setIsMobileSidebarOpen(false)}
+          />
+          <DashboardSidebar
+            className="fixed inset-y-0 left-0 z-50 md:hidden transform transition-transform duration-300"
+            onClose={() => setIsMobileSidebarOpen(false)}
+            isMobile
+          />
+        </>
+      )}
+
+      {/* Main content area */}
+      <div className="flex-1 flex flex-col overflow-hidden">
+        <DashboardHeader onMenuClick={() => setIsMobileSidebarOpen(true)} />
+
+        {/* Scrollable content */}
+        <main className="flex-1 overflow-y-auto">
+          <div className="px-6 lg:px-8 py-6 space-y-6">
+            {children}
           </div>
-        </div>
-      </SidebarInset>
-    </SidebarProvider>
+        </main>
+      </div>
+    </div>
   )
-} 
+}
