@@ -1,9 +1,16 @@
 import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server'
 
 const isProtectedRoute = createRouteMatcher(['/dashboard(.*)'])
-
+const isPublicApiRoute = createRouteMatcher([
+  '/api/auth/github(.*)',  // GitHub OAuth routes should be public
+])
 
 export default clerkMiddleware(async (auth, req) => {
+  // Skip Clerk middleware for public API routes (but auth() can still be used inside them)
+  if (isPublicApiRoute(req)) {
+    return
+  }
+
   if (isProtectedRoute(req)) await auth.protect()
 })
 

@@ -11,9 +11,12 @@ const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
  */
 export async function GET(request: NextRequest) {
   try {
+    console.log("=== GitHub OAuth Callback Started ===");
     const { userId } = await auth();
+    console.log("Clerk userId:", userId);
 
     if (!userId) {
+      console.log("No userId from Clerk auth()");
       return NextResponse.redirect(
         `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/dashboard?error=unauthorized`
       );
@@ -24,6 +27,7 @@ export async function GET(request: NextRequest) {
     const code = searchParams.get("code");
     const state = searchParams.get("state");
     const error = searchParams.get("error");
+    console.log("OAuth params - code:", code ? "present" : "missing", "state:", state, "error:", error);
 
     // Handle OAuth errors (user denied access)
     if (error) {
@@ -81,30 +85,44 @@ export async function GET(request: NextRequest) {
     }
 
     const { access_token, token_type, scope } = tokenData;
+    console.log("Got access token, token_type:", token_type, "scope:", scope);
 
-    // Get user document from Convex
-    const userDoc = await convex.query(api.users.current, {});
+    // Get user document from Convex by Clerk externalId
+    console.log("Looking up user by externalId:", userId);
+    const userDoc = await convex.query(api.users.getByExternalId, {
+      externalId: userId,
+    });
+    console.log("User doc from Convex:", userDoc ? "found" : "not found");
 
     if (!userDoc) {
+      console.error("User not found in Convex for Clerk ID:", userId);
       return NextResponse.redirect(
         `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/dashboard?error=user_not_found`
       );
     }
 
-    // Store encrypted token in Convex
-    await convex.mutation(api.githubTokens.store, {
+    // Store token in Convex
+    console.log("Storing GitHub token for user:", userDoc._id);
+    await convex.mutation(api.githubTokens.storePublic, {
       userId: userDoc._id,
       accessToken: access_token,
       tokenType: token_type,
       scope: scope,
     });
+    console.log("Token stored successfully!");
 
     // Redirect to repository selection page
+    console.log("Redirecting to repository selection page with success");
     return NextResponse.redirect(
-      `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/dashboard/repositories?connected=true`
+      `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/dashboard/repositories/select?connected=true`
     );
   } catch (error) {
     console.error("Error in GitHub OAuth callback:", error);
+    console.error("Error details:", JSON.stringify(error, null, 2));
+    if (error instanceof Error) {
+      console.error("Error message:", error.message);
+      console.error("Error stack:", error.stack);
+    }
     return NextResponse.redirect(
       `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/dashboard?error=callback_failed`
     );

@@ -1,4 +1,4 @@
-import { internalMutation, query } from "./_generated/server";
+import { internalMutation, mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 import { getCurrentUser, getCurrentUserOrThrow } from "./users";
 
@@ -9,7 +9,7 @@ import { getCurrentUser, getCurrentUserOrThrow } from "./users";
  */
 
 /**
- * Store a GitHub access token for a user
+ * Store a GitHub access token for a user (internal - called from webhooks/actions)
  */
 export const store = internalMutation({
   args: {
@@ -21,6 +21,43 @@ export const store = internalMutation({
   },
   handler: async (ctx, args) => {
     // Check if user already has a token
+    const existing = await ctx.db
+      .query("githubTokens")
+      .withIndex("byUserId", (q) => q.eq("userId", args.userId))
+      .unique();
+
+    const tokenData = {
+      userId: args.userId,
+      accessToken: args.accessToken,
+      tokenType: args.tokenType,
+      scope: args.scope,
+      expiresAt: args.expiresAt,
+      createdAt: Date.now(),
+    };
+
+    if (existing) {
+      await ctx.db.patch(existing._id, tokenData);
+    } else {
+      await ctx.db.insert("githubTokens", tokenData);
+    }
+
+    return { success: true };
+  },
+});
+
+/**
+ * Store a GitHub access token (public - can be called from API routes)
+ */
+export const storePublic = mutation({
+  args: {
+    userId: v.id("users"),
+    accessToken: v.string(),
+    tokenType: v.string(),
+    scope: v.string(),
+    expiresAt: v.optional(v.number()),
+  },
+  handler: async (ctx, args) => {
+    // Same logic as internal mutation
     const existing = await ctx.db
       .query("githubTokens")
       .withIndex("byUserId", (q) => q.eq("userId", args.userId))
@@ -102,5 +139,26 @@ export const remove = internalMutation({
     }
 
     return { success: true };
+  },
+});
+
+/**
+ * Get GitHub token by userId (for server-side API routes)
+ */
+export const getByUserId = query({
+  args: {
+    userId: v.id("users"),
+  },
+  handler: async (ctx, { userId }): Promise<string | null> => {
+    const tokenRecord = await ctx.db
+      .query("githubTokens")
+      .withIndex("byUserId", (q) => q.eq("userId", userId))
+      .unique();
+
+    if (!tokenRecord) {
+      return null;
+    }
+
+    return tokenRecord.accessToken;
   },
 });
