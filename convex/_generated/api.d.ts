@@ -16,6 +16,8 @@ import type * as manualUserSetup from "../manualUserSetup.js";
 import type * as paymentAttemptTypes from "../paymentAttemptTypes.js";
 import type * as paymentAttempts from "../paymentAttempts.js";
 import type * as repositories from "../repositories.js";
+import type * as templates from "../templates.js";
+import type * as toneOfVoice from "../toneOfVoice.js";
 import type * as users from "../users.js";
 
 import type {
@@ -41,6 +43,8 @@ declare const fullApi: ApiFromModules<{
   paymentAttemptTypes: typeof paymentAttemptTypes;
   paymentAttempts: typeof paymentAttempts;
   repositories: typeof repositories;
+  templates: typeof templates;
+  toneOfVoice: typeof toneOfVoice;
   users: typeof users;
 }>;
 declare const fullApiWithMounts: typeof fullApi;
