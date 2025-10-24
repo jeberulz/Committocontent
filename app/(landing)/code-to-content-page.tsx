@@ -112,11 +112,155 @@ export default function CodeToContentLandingPage() {
               </div>
             </div>
 
-            {/* Product Mockup - Simplified for now */}
+            {/* Product Mockup */}
             <div className="lg:col-span-6">
-              <div className="rounded-2xl ring-1 ring-white/10 bg-white/5 backdrop-blur shadow-[0_20px_120px_-20px_rgba(0,0,0,0.7)] p-6">
-                <div className="text-sm text-white/70 text-center py-12 font-geist">
-                  Product mockup coming soon
+              <div className="rounded-2xl ring-1 ring-white/10 bg-white/5 backdrop-blur shadow-[0_20px_120px_-20px_rgba(0,0,0,0.7)]">
+                {/* Window chrome */}
+                <div className="flex sm:px-6 border-white/10 border-b pt-3 pr-4 pb-3 pl-4 items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="h-3 w-3 rounded-full bg-red-500/90"></span>
+                    <span className="h-3 w-3 rounded-full bg-amber-400/90"></span>
+                    <span className="h-3 w-3 rounded-full bg-emerald-500/90"></span>
+                    <div className="ml-3 text-sm text-white/70 font-geist">CodeToContent — Preview</div>
+                  </div>
+                  <div className="hidden sm:flex items-center gap-2">
+                    <button className="rounded-lg p-2 hover:bg-white/10">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 text-white/80">
+                        <path d="m21.64 3.64-1.28-1.28a1.21 1.21 0 0 0-1.72 0L2.36 18.64a1.21 1.21 0 0 0 0 1.72l1.28 1.28a1.2 1.2 0 0 0 1.72 0L21.64 5.36a1.2 1.2 0 0 0 0-1.72"></path>
+                        <path d="m14 7 3 3"></path>
+                        <path d="M5 6v4"></path>
+                        <path d="M19 14v4"></path>
+                        <path d="M10 2v2"></path>
+                        <path d="M7 8H3"></path>
+                        <path d="M21 16h-4"></path>
+                        <path d="M11 3H9"></path>
+                      </svg>
+                    </button>
+                    <button className="rounded-lg p-2 hover:bg-white/10">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 text-white/60">
+                        <circle cx="12" cy="12" r="1"></circle>
+                        <circle cx="19" cy="12" r="1"></circle>
+                        <circle cx="5" cy="12" r="1"></circle>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+                {/* Content grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2">
+                  {/* Commits */}
+                  <aside className="p-4 sm:p-6 border-b md:border-b-0 md:border-r border-white/10">
+                    <p className="text-xs uppercase tracking-wider text-white/50 mb-3 font-geist">Recent commits</p>
+                    <div className="space-y-2">
+                      <div className="flex items-start gap-3 rounded-lg p-3 bg-white/5 ring-1 ring-white/10">
+                        <div className="mt-0.5">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 text-emerald-300">
+                            <circle cx="12" cy="12" r="3"></circle>
+                            <line x1="3" x2="9" y1="12" y2="12"></line>
+                            <line x1="15" x2="21" y1="12" y2="12"></line>
+                          </svg>
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-sm text-white/90 truncate font-geist">feat: add image optimization and lazy loading</p>
+                          <p className="text-[11px] text-white/50">+142 −36 in /app/routes</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3 rounded-lg p-3 bg-white/5 ring-1 ring-white/10">
+                        <div className="mt-0.5">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 text-emerald-300">
+                            <circle cx="12" cy="12" r="3"></circle>
+                            <line x1="3" x2="9" y1="12" y2="12"></line>
+                            <line x1="15" x2="21" y1="12" y2="12"></line>
+                          </svg>
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-sm text-white/90 truncate font-geist">fix: race condition in webhook handler</p>
+                          <p className="text-[11px] text-white/50">+28 −11 in /services/webhooks.ts</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3 rounded-lg p-3 bg-white/5 ring-1 ring-white/10">
+                        <div className="mt-0.5">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 text-emerald-300">
+                            <circle cx="12" cy="12" r="3"></circle>
+                            <line x1="3" x2="9" y1="12" y2="12"></line>
+                            <line x1="15" x2="21" y1="12" y2="12"></line>
+                          </svg>
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-sm text-white/90 truncate font-geist">chore: migrate to pnpm and turbo</p>
+                          <p className="text-[11px] text-white/50">+6 −6 in /</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="mt-4 flex items-center justify-between">
+                      <span className="text-xs text-white/60 font-geist">Select commits →</span>
+                      <button className="inline-flex items-center gap-2 text-xs rounded-full px-3 py-1.5 bg-white text-black hover:bg-white/90 ring-1 ring-white/20 font-geist">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5">
+                          <path d="m21.64 3.64-1.28-1.28a1.21 1.21 0 0 0-1.72 0L2.36 18.64a1.21 1.21 0 0 0 0 1.72l1.28 1.28a1.2 1.2 0 0 0 1.72 0L21.64 5.36a1.2 1.2 0 0 0 0-1.72"></path>
+                          <path d="m14 7 3 3"></path>
+                          <path d="M5 6v4"></path>
+                          <path d="M19 14v4"></path>
+                          <path d="M10 2v2"></path>
+                          <path d="M7 8H3"></path>
+                          <path d="M21 16h-4"></path>
+                          <path d="M11 3H9"></path>
+                        </svg>
+                        Generate draft
+                      </button>
+                    </div>
+                  </aside>
+                  {/* Draft */}
+                  <section className="p-4 sm:p-6">
+                    <p className="text-xs uppercase tracking-wider text-white/50 mb-3 font-geist">Generated Article</p>
+                    <div className="rounded-lg p-4 bg-white/5 ring-1 ring-white/10">
+                      <h3 className="text-lg tracking-tight mb-1 font-geist font-medium">
+                        Optimizing Images with Lazy Loading and Responsive Srcsets
+                      </h3>
+                      <p className="text-sm text-white/70 font-geist">
+                        This week I refactored our asset pipeline to ship the smallest possible images for every device. Here&apos;s the why, the trade‑offs, and the exact code changes across routes and the loader…
+                      </p>
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        <span className="text-[11px] text-white/70 bg-white/5 ring-1 ring-white/10 px-2 py-1 rounded-full font-geist">React</span>
+                        <span className="text-[11px] text-white/70 bg-white/5 ring-1 ring-white/10 px-2 py-1 rounded-full font-geist">Performance</span>
+                        <span className="text-[11px] text-white/70 bg-white/5 ring-1 ring-white/10 px-2 py-1 rounded-full font-geist">Frontend</span>
+                      </div>
+                      <div className="mt-4 flex items-center justify-between">
+                        <div className="flex items-center gap-2 text-xs text-white/60">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5">
+                            <path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"></path>
+                            <path d="m15 5 4 4"></path>
+                          </svg>
+                          <span className="font-geist">Edit tone</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <button className="rounded-full px-3 py-1.5 text-xs ring-1 ring-white/10 hover:bg-white/10 font-geist">Export</button>
+                          <button className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs bg-white text-black hover:bg-white/90 ring-1 ring-white/20 font-geist">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5">
+                              <path d="M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z"></path>
+                              <path d="m21.854 2.147-10.94 10.939"></path>
+                            </svg>
+                            Publish
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </section>
+                </div>
+              </div>
+
+              {/* Credibility numbers */}
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-6">
+                <div className="rounded-lg bg-white/5 ring-1 ring-white/10 p-4">
+                  <p className="text-2xl tracking-tight font-geist font-semibold">4h+</p>
+                  <p className="text-xs text-white/60 font-geist">Avg time saved per post</p>
+                </div>
+                <div className="rounded-lg bg-white/5 ring-1 ring-white/10 p-4">
+                  <p className="text-2xl tracking-tight font-geist font-semibold">10k+</p>
+                  <p className="text-xs text-white/60 font-geist">Repos connected</p>
+                </div>
+                <div className="rounded-lg bg-white/5 ring-1 ring-white/10 p-4">
+                  <p className="text-2xl tracking-tight font-geist font-semibold">98%</p>
+                  <p className="text-xs text-white/60 font-geist">Say drafts &quot;sound like me&quot;</p>
                 </div>
               </div>
             </div>
